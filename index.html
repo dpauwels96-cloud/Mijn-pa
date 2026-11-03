@@ -162,7 +162,8 @@ async function searchPlaces() {
     });
   } catch (error) {
     status.textContent =
-      "Er ging iets mis bij het zoeken. Probeer het later opnieuw.";
+      "Fout: " + error.message;
+    console.error(error);
   } finally {
     button.disabled = false;
   }
