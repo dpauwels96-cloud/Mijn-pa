@@ -116,13 +116,7 @@ async function searchPlaces() {
     const url = "https://photon.komoot.io/api/?q=" +
       query + "&limit=10&lang=nl";
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json"
-      },
-      mode: "cors"
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error("HTTP-fout: " + response.status);
