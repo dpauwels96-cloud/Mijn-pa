@@ -93,6 +93,7 @@
 </main>
 
 <script>
+
 async function searchPlaces() {
   const city = document.getElementById("city").value.trim();
   const category = document.getElementById("category").value;
@@ -115,18 +116,23 @@ async function searchPlaces() {
     const url = "https://photon.komoot.io/api/?q=" +
       query + "&limit=10&lang=nl";
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      },
+      mode: "cors"
+    });
 
     if (!response.ok) {
-      throw new Error("De zoekdienst reageert niet.");
+      throw new Error("HTTP-fout: " + response.status);
     }
 
     const data = await response.json();
     const places = data.features || [];
 
     if (places.length === 0) {
-      status.textContent =
-        "Geen locaties gevonden. Probeer een andere zoekterm of stad.";
+      status.textContent = "Geen locaties gevonden.";
       return;
     }
 
@@ -135,7 +141,8 @@ async function searchPlaces() {
 
     places.slice(0, 10).forEach(place => {
       const p = place.properties || {};
-      const name = p.name || p.street || "Naam niet beschikbaar";
+
+      const name = p.name || "Naam niet beschikbaar";
       const address = [
         p.street,
         p.housenumber,
@@ -155,19 +162,18 @@ async function searchPlaces() {
 
       const location = document.createElement("p");
       location.className = "address";
-      location.textContent = address || "Adres niet beschikbaar";
+      location.textContent =
+        address || "Adres niet beschikbaar";
 
       card.append(heading, type, location);
       results.appendChild(card);
     });
+
   } catch (error) {
     status.textContent =
-      "Fout: " + error.message;
-    console.error(error);
+      "Technische fout: " + error.name + " – " + error.message;
   } finally {
     button.disabled = false;
   }
 }
-</script>
-</body>
-</html>
+
