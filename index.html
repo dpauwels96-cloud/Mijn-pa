@@ -115,7 +115,8 @@ async function searchPlaces() {
     const query = encodeURIComponent(city);
     const url = "https://photon.komoot.io/api/?q=" +
       query + "&limit=10&lang=nl";
-
+    
+status.textContent = "URL: " + url;
     const response = await fetch(url);
 
     if (!response.ok) {
