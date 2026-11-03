@@ -112,7 +112,7 @@ async function searchPlaces() {
   status.textContent = "Even zoeken...";
 
   try {
-    const query = encodeURIComponent(category + " " + city);
+    const query = encodeURIComponent(city);
     const url = "https://photon.komoot.io/api/?q=" +
       query + "&limit=10&lang=nl";
 
