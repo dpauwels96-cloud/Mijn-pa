@@ -2,95 +2,101 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#17251f">
-  <title>Mijn PA</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 28px 20px;
-      background: #f5f3ed;
-      color: #26352d;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    main { max-width: 520px; margin: auto; }
-    .tag { color: #718276; font-size: 12px; letter-spacing: 2px; }
-    h1 { font-size: 38px; margin-bottom: 8px; }
-    p { line-height: 1.6; }
-    label { display: block; margin: 24px 0 8px; font-weight: 600; }
-    input, select, button {
-      width: 100%; padding: 15px; border-radius: 12px;
-      font-size: 16px; margin-bottom: 12px;
-    }
-    input, select { border: 1px solid #c9cec6; background: white; }
-    button {
-      border: 0; background: #263d31; color: white;
-      font-weight: 600;
-    }
-    .place {
-      background: white; padding: 16px; margin-top: 12px;
-      border-radius: 12px;
-    }
-    .place h3 { margin: 0 0 6px; }
-    .place p { margin: 4px 0; font-size: 14px; }
-    #message { color: #526b59; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17251f">
+<title>Mijn PA</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 28px 20px;
+  background: #f5f3ed; color: #26352d;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+main { max-width: 520px; margin: auto; }
+.tag { color: #718276; font-size: 12px; letter-spacing: 2px; }
+h1 { font-size: 38px; margin-bottom: 8px; }
+p { line-height: 1.6; }
+label { display: block; margin: 22px 0 8px; font-weight: 600; }
+input, select, button {
+  width: 100%; padding: 15px; border-radius: 12px;
+  font-size: 16px; margin-bottom: 12px;
+}
+input, select { border: 1px solid #c9cec6; background: white; }
+button {
+  border: 0; background: #263d31; color: white;
+  font-weight: 600;
+}
+.place {
+  background: white; padding: 16px;
+  margin-top: 12px; border-radius: 12px;
+}
+.place h3 { margin: 0 0 6px; }
+.place p { margin: 4px 0; font-size: 14px; }
+#message { color: #526b59; }
+</style>
 </head>
 <body>
 <main>
-  <div class="tag">JOUW PERSOONLIJKE ASSISTENT</div>
-  <h1>Mijn PA</h1>
-  <p>Ontdek bijzondere plekken, goede adressen en verborgen pareltjes.</p>
+<div class="tag">JOUW PERSOONLIJKE ASSISTENT</div>
+<h1>Mijn PA</h1>
+<p>Ontdek bijzondere plekken, goede adressen en verborgen pareltjes.</p>
 
-  <label for="city">Welke stad wil je ontdekken?</label>
-  <input id="city" value="Haarlem" placeholder="Bijvoorbeeld Haarlem">
+<label for="city">Welke stad wil je ontdekken?</label>
+<input id="city" value="Haarlem" placeholder="Bijvoorbeeld Haarlem">
 
-  <label for="category">Wat zoek je?</label>
-  <select id="category">
-    <option value="all">Alles</option>
-    <option value="restaurant">Restaurants</option>
-    <option value="bar">Bars en pubs</option>
-    <option value="cafe">Koffie en cafés</option>
-    <option value="attraction">Bezienswaardigheden</option>
-  </select>
+<label for="category">Wat zoek je?</label>
+<select id="category">
+<option value="all">Alles</option>
+<option value="restaurant">Restaurants</option>
+<option value="bar">Bars en pubs</option>
+<option value="cafe">Koffie en cafés</option>
+<option value="attraction">Bezienswaardigheden</option>
+</select>
 
-  <button onclick="searchPlaces()">Ontdek deze stad</button>
-  <p id="message"></p>
-  <div id="results"></div>
+<button id="searchButton" onclick="searchPlaces()">Ontdek deze stad</button>
+<p id="message" aria-live="polite"></p>
+<div id="results"></div>
 </main>
 
 <script>
+async function getJSON(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error('Zoekdienst reageert met foutcode ' + response.status);
+  }
+  return response.json();
+}
+
 async function searchPlaces() {
   const city = document.getElementById('city').value.trim();
   const category = document.getElementById('category').value;
   const message = document.getElementById('message');
   const results = document.getElementById('results');
+  const button = document.getElementById('searchButton');
 
   if (!city) {
     message.textContent = 'Vul eerst een stad in.';
     return;
   }
 
-  message.textContent = 'We zoeken leuke plekken in ' + city + '...';
+  button.disabled = true;
+  message.textContent = 'We zoeken maximaal 10 plekken in ' + city + '...';
   results.innerHTML = '';
 
   try {
-    const geoUrl = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='
+    const geoURL = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='
       + encodeURIComponent(city);
 
-    const geoResponse = await fetch(geoUrl);
-    if (!geoResponse.ok) throw new Error('Stad niet gevonden');
-    const geoData = await geoResponse.json();
+    const places = await getJSON(geoURL);
 
-    if (!geoData.length) throw new Error('We konden deze stad niet vinden.');
+    if (!places.length) throw new Error('Stad niet gevonden.');
 
-    const place = geoData[0];
-    const south = Number(place.boundingbox[0]);
-    const north = Number(place.boundingbox[1]);
-    const west = Number(place.boundingbox[2]);
-    const east = Number(place.boundingbox[3]);
+    const p = places[0];
+    const south = Number(p.boundingbox[0]);
+    const north = Number(p.boundingbox[1]);
+    const west = Number(p.boundingbox[2]);
+    const east = Number(p.boundingbox[3]);
 
     const filters = {
       restaurant: 'node["amenity"="restaurant"]',
@@ -103,48 +109,67 @@ async function searchPlaces() {
       ? 'node["amenity"~"restaurant|bar|pub|cafe"],node["tourism"~"attraction|museum|viewpoint"]'
       : filters[category];
 
-    const query = `[out:json][timeout:25];(${filter}(${south},${west},${north},${east}););out center 60;`;
+    const query = '[out:json][timeout:20];(' +
+      filter + '(' + south + ',' + west + ',' + north + ',' + east +
+      '););out tags 10;';
 
-    const response = await fetch('https://overpass.kumi.systems/api/interpreter', {
-      method: 'POST',
-      body: 'data=' + encodeURIComponent(query)
-    });
+    const servers = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter'
+    ];
 
-    if (!response.ok) throw new Error('De zoekdienst is tijdelijk niet beschikbaar.');
-    const data = await response.json();
+    let data = null;
+    let lastError = null;
+
+    for (const server of servers) {
+      try {
+        data = await getJSON(server, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'data=' + encodeURIComponent(query)
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!data) throw lastError || new Error('Zoekdiensten niet beschikbaar.');
 
     const found = data.elements.filter(item => item.tags && item.tags.name);
 
-    message.textContent = found.length
-      ? found.length + ' plekken gevonden in ' + city + '.'
-      : 'We hebben geen benoemde plekken gevonden.';
+    if (!found.length) {
+      message.textContent = 'Geen benoemde plekken gevonden in ' + city + '.';
+      return;
+    }
 
-    found.slice(0, 40).forEach(item => {
-      const name = item.tags.name;
-      const type = item.tags.amenity || item.tags.tourism || 'Locatie';
-      const address = [
-        item.tags['addr:street'],
-        item.tags['addr:housenumber']
-      ].filter(Boolean).join(' ');
+    message.textContent = Math.min(found.length, 10) +
+      ' plekken gevonden in ' + city + '.';
 
+    found.slice(0, 10).forEach(item => {
       const card = document.createElement('div');
       card.className = 'place';
 
       const title = document.createElement('h3');
-      title.textContent = name;
+      title.textContent = item.tags.name;
 
-      const categoryText = document.createElement('p');
-      categoryText.textContent = type;
+      const type = document.createElement('p');
+      type.textContent = item.tags.amenity || item.tags.tourism || 'Locatie';
 
-      const addressText = document.createElement('p');
-      addressText.textContent = address || 'Adres niet beschikbaar';
+      const address = document.createElement('p');
+      address.textContent = [
+        item.tags['addr:street'],
+        item.tags['addr:housenumber']
+      ].filter(Boolean).join(' ') || 'Adres niet beschikbaar';
 
-      card.append(title, categoryText, addressText);
+      card.append(title, type, address);
       results.appendChild(card);
     });
 
   } catch (error) {
-    message.textContent = 'Er ging iets mis: ' + error.message;
+    message.textContent = 'Zoeken lukt momenteel niet: ' + error.message;
+  } finally {
+    button.disabled = false;
   }
 }
 </script>
