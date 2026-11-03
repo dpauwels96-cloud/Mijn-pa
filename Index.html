@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17251f">
+  <title>Mijn PA</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px 20px;
+      background: #f5f3ed;
+      color: #26352d;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    main { max-width: 520px; margin: 0 auto; }
+    .tag { color: #718276; font-size: 12px; letter-spacing: 2px; }
+    h1 { font-size: 38px; margin-bottom: 8px; }
+    p { line-height: 1.6; }
+    label { display: block; margin: 28px 0 8px; font-weight: 600; }
+    input, button {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #c9cec6; background: white; }
+    button {
+      margin-top: 12px;
+      border: 0;
+      background: #263d31;
+      color: white;
+      font-weight: 600;
+    }
+    #message { margin-top: 18px; color: #526b59; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="tag">JOUW PERSOONLIJKE ASSISTENT</div>
+    <h1>Mijn PA</h1>
+    <p>Jouw persoonlijke gids voor bijzondere plekken, goede adressen en verborgen pareltjes.</p>
+
+    <label for="city">Welke stad wil je ontdekken?</label>
+    <input id="city" type="text" placeholder="Bijvoorbeeld Rotterdam">
+
+    <button onclick="searchCity()">Ontdek deze stad</button>
+    <p id="message"></p>
+  </main>
+
+  <script>
+    function searchCity() {
+      const city = document.getElementById('city').value.trim();
+      const message = document.getElementById('message');
+
+      if (!city) {
+        message.textContent = 'Vul eerst een stad in.';
+        return;
+      }
+
+      message.textContent = 'Binnenkort gaan we samen ' + city + ' ontdekken!';
+    }
+  </script>
+</body>
+</html>
