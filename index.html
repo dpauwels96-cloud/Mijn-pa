@@ -94,6 +94,7 @@
 
 <script>
 
+
 async function searchPlaces() {
   const city = document.getElementById("city").value.trim();
   const category = document.getElementById("category").value;
@@ -112,69 +113,62 @@ async function searchPlaces() {
   status.textContent = "Even zoeken...";
 
   try {
-    const query = encodeURIComponent(city);
-    const url = "https://photon.komoot.io/api/?q=" +
-      query + "&limit=10&lang=nl";
-    
-status.textContent = "URL: " + url;
-    const response = await fetch(url, {
-  method: "GET",
-  mode: "cors",
-  cache: "no-store"
-});
-
-    if (!response.ok) {
-      throw new Error("HTTP-fout: " + response.status);
-    }
+    const response = await fetch(
+      "https://cooklvzvfawdpifssvmz.supabase.co/functions/v1/zoek-locaties",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "sb_publishable_uIBb2Ib5mzQh9f75G6tqzg_--e5DY5m"
+        },
+        body: JSON.stringify({
+          city: city,
+          category: category
+        })
+      }
+    );
 
     const data = await response.json();
-    const places = data.features || [];
+
+    if (!response.ok) {
+      throw new Error(data.error || "HTTP-fout: " + response.status);
+    }
+
+    const places = data.places || [];
 
     if (places.length === 0) {
       status.textContent = "Geen locaties gevonden.";
       return;
     }
 
-    status.textContent =
-      places.length + " zoekresultaten gevonden.";
+    status.textContent = places.length + " locaties gevonden.";
 
     places.slice(0, 10).forEach(place => {
-      const p = place.properties || {};
-
-      const name = p.name || "Naam niet beschikbaar";
-      const address = [
-        p.street,
-        p.housenumber,
-        p.postcode,
-        p.city || p.locality
-      ].filter(Boolean).join(", ");
-
       const card = document.createElement("article");
       card.className = "place";
 
       const heading = document.createElement("h3");
-      heading.textContent = name;
+      heading.textContent = place.name;
 
       const type = document.createElement("div");
       type.className = "category";
-      type.textContent = category;
+      type.textContent = place.category;
 
       const location = document.createElement("p");
       location.className = "address";
-      location.textContent =
-        address || "Adres niet beschikbaar";
+      location.textContent = place.address || "Adres niet beschikbaar";
 
       card.append(heading, type, location);
       results.appendChild(card);
     });
 
   } catch (error) {
-    status.textContent =
-      "Technische fout: " + error.name + " – " + error.message;
+    status.textContent = "Fout: " + error.message;
   } finally {
     button.disabled = false;
   }
 }
+
 </script>
 </body>
 </html>
